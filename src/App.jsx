@@ -1,5 +1,5 @@
 // src/App.jsx
-import React from 'react';
+import React, {useEffect} from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useMsal, MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
@@ -39,6 +39,22 @@ const App = () => {
       }
     }
   };
+
+  const updateUser = async () => {
+    if (accounts.length > 0) {
+      //const accessToken = await instance.acquireTokenSilent({
+      //  scopes: ['user.read'], // Add scopes for the API resources you want to access
+      //});
+      // Use the access token to call APIs or validate user roles
+      // You can also fetch user information from Azure AD using Microsoft Graph API
+      // For simplicity, let's just set the user in Redux state
+      dispatch(setUser({ name: accounts[0].name, role: 'Admin' }));
+    }
+  }
+
+  useEffect(() => {
+    updateUser();
+  }, [accounts])
 
   // Function to handle logout
   const handleLogout = () => {
