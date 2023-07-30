@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, {useEffect} from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { useMsal, MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
 import { useSelector, useDispatch } from 'react-redux';
@@ -64,6 +64,10 @@ const App = () => {
     }
   };
 
+  function LoadingComponent() {
+    return <p>Authentication in progress...</p>;
+  }
+
   return (
     <Router>
       <div>
@@ -72,6 +76,7 @@ const App = () => {
             <div>
               <h2>Welcome, {user.name}!</h2>
               <button onClick={handleLogout}>Logout</button>
+              <Link to='/dashboard' ><button>Dashboard</button></Link>
             </div>
           ) : (
             <button onClick={handleLogin}>Login</button>
@@ -83,13 +88,13 @@ const App = () => {
         {/* Use MsalAuthenticationTemplate to handle redirect and token acquisition */}
         <MsalAuthenticationTemplate
           interactionStatus={inProgress}
-          //loadingComponent={<div>Loading...</div>}
+          loadingComponent={LoadingComponent}
           errorComponent={<div>Error</div>}
         >
           <Routes>
-            <Route exact path="/" component={Home} />
+            <Route exact path="/" element={<Home />} />
             {user && userHasRole(user, 'Admin') ? (
-              <Route path="/dashboard" component={Dashboard} />
+              <Route path="/dashboard" element={<Dashboard />} />
             ) : null}
           </Routes>
         </MsalAuthenticationTemplate>
