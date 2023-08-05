@@ -1,23 +1,27 @@
 // src/App.jsx
 import React, {useEffect} from 'react';
+//import { useHistory } from 'react-router-dom';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { useMsal, MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser, clearUser } from './redux/authSlice';
-//import { authConfig } from './authConfig';
 
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
+import Unauthorized from './components/Unauthorized';
 import { userHasRole } from './utils/auth';
+
+/****** Note: check out https://blog.openreplay.com/role-based-access-in-react/ for RBAC roles */
+/****** Note: Azure set up using MarkMGill@live.com */
 
 const App = () => {
   const { instance, accounts, inProgress } = useMsal();
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+
   console.log(accounts)
-  console.log(inProgress)
-  console.log(InteractionStatus)
+
   console.log(user)
   // Function to handle login
   const handleLogin = async () => {
@@ -42,12 +46,6 @@ const App = () => {
 
   const updateUser = async () => {
     if (accounts.length > 0) {
-      //const accessToken = await instance.acquireTokenSilent({
-      //  scopes: ['user.read'], // Add scopes for the API resources you want to access
-      //});
-      // Use the access token to call APIs or validate user roles
-      // You can also fetch user information from Azure AD using Microsoft Graph API
-      // For simplicity, let's just set the user in Redux state
       dispatch(setUser({ name: accounts[0].name, role: 'Admin' }));
     }
   }
@@ -68,6 +66,11 @@ const App = () => {
     return <p>Authentication in progress...</p>;
   }
 
+
+const Products = () => <h1>Products</h1>;
+const ProductsEdit = () => <h1>ProductsEdit</h1>;
+const AllProducts = () => <h1>AllProducts</h1>;
+
   return (
     <Router>
       <div>
@@ -85,6 +88,21 @@ const App = () => {
           <div>Loading...</div>
         )}
 
+    <ul>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/products">Products</Link>
+        </li>
+        <li>
+          <Link to="/products-edit">Products Edit</Link>
+        </li>
+        <li>
+          <Link to="/all-products">All Products</Link>
+        </li>
+      </ul>
+
         {/* Use MsalAuthenticationTemplate to handle redirect and token acquisition */}
         <MsalAuthenticationTemplate
           interactionStatus={inProgress}
@@ -96,19 +114,22 @@ const App = () => {
             {user && userHasRole(user, 'Admin') ? (
               <Route path="/dashboard" element={<Dashboard />} />
             ) : null}
+            {user && userHasRole(user, 'Admin') ? (
+              <Route path="/products" exact element={<Products />} />
+            ) : <Route path="/products" element={<Unauthorized />} />}
+            {user && userHasRole(user, 'Non-Admin') ? (
+              <Route path="/products-edit" element={<ProductsEdit />} />
+            ) : <Route path="/products-edit" element={<Unauthorized />} />}
+
           </Routes>
+
+
+        
+
         </MsalAuthenticationTemplate>
       </div>
     </Router>
   );
 };
-
-/*const AppWithMsal = () => {
-  return (
-    <MsalProvider instance={authConfig.msalInstance}>
-      <App />
-    </MsalProvider>
-  );
-};*/
 
 export default App;
