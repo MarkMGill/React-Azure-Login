@@ -28,14 +28,16 @@ const productsSlice = createSlice({
     },
     updateProduct: (state, action) => {
         const { id, type, price, city, stateAbr } = action.payload;
-        const productIndex = state.findIndex((product) => product.id === id);
+
+
+        const productIndex = state.products.findIndex((product) => product.id === id);
         if (productIndex !== -1) {
-          state[productIndex] = {
-            ...state[productIndex],
+          state.products[productIndex] = {
+            ...state.products[productIndex],
             type,
             price,
             city,
-            state,
+            stateAbr,
           };
         }
       },
