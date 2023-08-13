@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, {useEffect} from 'react';
 //import { useHistory } from 'react-router-dom';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import { useMsal, MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,6 +10,7 @@ import { setUser, clearUser } from './redux/authSlice';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Unauthorized from './components/Unauthorized';
+import ProductsEdit from './views/ProductsEdit';
 import { userHasRole } from './utils/auth';
 
 /****** Note: check out https://blog.openreplay.com/role-based-access-in-react/ for RBAC roles */
@@ -68,7 +69,6 @@ const App = () => {
 
 
 const Products = () => <h1>Products</h1>;
-const ProductsEdit = () => <h1>ProductsEdit</h1>;
 const AllProducts = () => <h1>AllProducts</h1>;
 
   return (
@@ -117,10 +117,19 @@ const AllProducts = () => <h1>AllProducts</h1>;
             {user && userHasRole(user, 'Admin') ? (
               <Route path="/products" exact element={<Products />} />
             ) : <Route path="/products" element={<Unauthorized />} />}
-            {user && userHasRole(user, 'Non-Admin') ? (
+            {user && userHasRole(user, 'Admin') ? (
               <Route path="/products-edit" element={<ProductsEdit />} />
             ) : <Route path="/products-edit" element={<Unauthorized />} />}
 
+            {/**** Valuable Redirect stuff, use this pattern!!!!!! But change Redirect to Navigate  ****
+             * For reference, see https://www.copycat.dev/blog/react-router-redirect/#:~:text=The%20React%20is,when%20it%20has%20been%20rendered.
+             * <Route exact path="/signup">
+                {isLoggedIn ? <Redirect to="/" /> : <SignUp />}
+              </Route>
+             * 
+             * 
+             * 
+            */}
           </Routes>
 
 
